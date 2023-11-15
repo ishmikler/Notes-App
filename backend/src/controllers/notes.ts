@@ -72,6 +72,7 @@ interface UpdateNoteParams {
   noteId: string;
 }
 
+//req.body needs type arguments
 interface UpdateNoteBody {
   title?: string;
   text?: string;
@@ -105,8 +106,33 @@ export const updateNote: RequestHandler<
 
     //save updated note so it can be returned to call of endpoint, which allows updating in UI
     const updatedNote = await note.save();
-
+    //.status doesn't send a response
+    //json is responsable for response
     res.status(200).json(updatedNote);
+  } catch (error) {
+    next(error);
+  }
+};
+
+//params can use default type of string, so types don't need to be declared for RequestHandler
+export const deleteNote: RequestHandler = async (req, res, next) => {
+  const noteId = req.params.noteId;
+
+  try {
+    if (!mongoose.isValidObjectId(noteId)) {
+      throw createHttpError(400, 'Invalid node ID');
+    }
+    //check if note exists
+    const note = await NoteModel.findById(noteId).exec();
+
+    if (!note) {
+      throw createHttpError(404, 'Note not found');
+    }
+
+    await NoteModel.deleteOne();
+
+    //res.sendStatus sets and send status b/c we don't need body
+    res.sendStatus(204);
   } catch (error) {
     next(error);
   }

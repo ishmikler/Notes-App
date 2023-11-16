@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import './App.css';
-import { Note } from './models/note';
+import { Note as NoteModel } from './models/note';
+import Note from './components/Note';
 
 function App() {
-  const [notes, setNotes] = useState<Note[]>([]);
+  const [notes, setNotes] = useState<NoteModel[]>([]);
 
   //for rendering automatically upon page load
   //can execute side effects outside of rendering of component
@@ -25,8 +25,14 @@ function App() {
     loadNotes();
     //empty dependancy array so useEffect only executes once
   }, []);
-
-  return <div className='App'>{JSON.stringify(notes)}</div>;
+  //map turns array of notes into component object
+  return (
+    <div>
+      {notes.map(note => (
+        <Note note={note} key={note._id} />
+      ))}
+    </div>
+  );
 }
 
 export default App;
